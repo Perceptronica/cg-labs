@@ -1,5 +1,7 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
+#include <GL/glu.h>
+#include <SFML/OpenGL.hpp>
 #include <iostream>
 #include <sstream>
 #include <sys/types.h>
@@ -13,14 +15,27 @@ const float X0 = static_cast<float>(horizontal_px / 2.0);
 const float Y0 = static_cast<float>(vertical_px / 2.0);
 
 int main() {
-  sf::RenderWindow window(sf::VideoMode(horizontal_px, vertical_px), "SFML Circle (lab no.1)");
+  sf::RenderWindow window(sf::VideoMode(horizontal_px, vertical_px),
+                          "CircleDraw");
   sf::CircleShape circle(100.0f);
-  circle.setFillColor(sf::Color::Blue);
+
+  sf::Texture texture;
+  sf::Image gradientImage;
+  gradientImage.create(256, 256);
+  for (unsigned int y = 0; y < 256; ++y) {
+      for (unsigned int x = 0; x < 256; ++x) {
+          sf::Color color(x, y, 100);
+          gradientImage.setPixel(x, y, color);
+      }
+  }
+
+  texture.loadFromImage(gradientImage);
   circle.setOrigin(circle.getRadius(), circle.getRadius());
   circle.setPosition(X0, Y0);
+  circle.setTexture(&texture);
 
   sf::Font font;
-  if (!font.loadFromFile("src/Arial.ttf")) {
+  if (!font.loadFromFile("../src/Arial.ttf")) {
     std::cerr << "Error! no font loaded!" << std::endl;
     return -1;
   }
@@ -49,6 +64,9 @@ int main() {
     while (window.pollEvent(event)) {
       if (event.type == sf::Event::Closed) {
         window.close();
+      }
+      if (event.type == sf::Event::Resized) {
+          glViewport(0, 0, event.size.width, event.size.height);
       }
       if (event.type == sf::Event::KeyPressed) {
         switch (event.key.code) {

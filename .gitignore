@@ -31,4 +31,6 @@
 *.out
 *.app
 
-executable
+main
+raytracer
+sphere_shading
